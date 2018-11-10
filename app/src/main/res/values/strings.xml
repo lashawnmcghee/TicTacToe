@@ -10,7 +10,13 @@
 
     <string name="player_1_wins">Player 1 is the winner!</string>
     <string name="player_2_wins">Player 2 is the winner!</string>
+    <string name="computer_wins">The computer is the winner!</string>
     <string name="noone_wins">This game is a DRAW.</string>
 
     <string name="new_game">New Game</string>
+
+    <string name="player_vs_player">Player vs Player</string>
+    <string name="player_vs_computer_easy">Player vs Computer (EASY)</string>
+    <string name="player_vs_computer_hard">Player vs Computer (HARD)</string>
+    <string name="about">About</string>
 </resources>

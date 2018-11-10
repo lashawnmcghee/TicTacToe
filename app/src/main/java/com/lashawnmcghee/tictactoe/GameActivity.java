@@ -5,10 +5,10 @@ package com.lashawnmcghee.tictactoe;
 
 import android.annotation.SuppressLint;
 import android.content.res.Configuration;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
@@ -29,8 +29,8 @@ import butterknife.OnClick;
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-public class MainActivity extends AppCompatActivity implements IGameListener, IGameDefines {
-    private static final String TAG = MainActivity.class.getSimpleName();
+public class GameActivity extends AppCompatActivity implements IGameListener, IGameDefines {
+    private static final String TAG = GameActivity.class.getSimpleName();
 
     /**
      * Whether or not the system UI should be auto-hidden after
@@ -57,6 +57,9 @@ public class MainActivity extends AppCompatActivity implements IGameListener, IG
     @BindView(R.id.fullscreen_content)
     View mContentView;
 
+    @BindView(R.id.tv_player_two)
+    TextView mPlayerTwoLabel;
+
     @BindView(R.id.iv_player_one_icon)
     ImageView mPlayerOneIcon;
     @BindView(R.id.iv_player_two_icon)
@@ -69,6 +72,7 @@ public class MainActivity extends AppCompatActivity implements IGameListener, IG
     public void onResetButton(View view) {
         view.setVisibility(View.GONE);
         resetGameBoard();
+        finish();
     }
 
     @BindViews({R.id.iv_one, R.id.iv_two, R.id.iv_three,
@@ -137,7 +141,7 @@ public class MainActivity extends AppCompatActivity implements IGameListener, IG
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_game);
 
         mVisible = true;
 
@@ -150,6 +154,21 @@ public class MainActivity extends AppCompatActivity implements IGameListener, IG
      * Init ui functionality
      */
     private void init() {
+        //pull out the chosen game type
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            if (bundle.containsKey("gameType")) {
+                int iGameType = bundle.getInt("gameType", -1);
+                mGameManager.setGameType(iGameType);
+                if(iGameType != Game.Types.PLAYER_VS_PLAYER) {
+                    mPlayerTwoLabel.setText(R.string.computer);
+                }
+            } else {
+                finish();
+            }
+        }
+
+        //add position descriptions to board positions
         for(int index = 0; index < mBoardPositions.size(); index ++) {
             ImageView view = mBoardPositions.get(index);
             view.setContentDescription(Game.VALID_MOVES[index]);
@@ -272,6 +291,16 @@ public class MainActivity extends AppCompatActivity implements IGameListener, IG
         } else {
             mPlayerTwoIcon.setBackgroundResource(R.drawable.rounded_button);
             mPlayerOneIcon.setBackgroundResource(android.R.color.transparent);
+        }
+    }
+
+    @Override
+    public void onComputerMove(String move) {
+        for(ImageView view : mBoardPositions) {
+            if(view.getContentDescription().equals(move)) {
+                spaceSelect(view);
+                break;
+            }
         }
     }
 

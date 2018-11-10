@@ -5,6 +5,7 @@ package com.lashawnmcghee.tictactoe;
 
 import com.lashawnmcghee.tictactoe.interfaces.IGameDefines;
 import com.lashawnmcghee.tictactoe.interfaces.IGameListener;
+import com.lashawnmcghee.tictactoe.models.ComputerPlayerUtil;
 import com.lashawnmcghee.tictactoe.models.GamePlayer;
 
 import java.util.Arrays;
@@ -21,6 +22,7 @@ public class GameManager implements IGameDefines {
     private GamePlayer mPlayerTwo;
 
     private int mCurrentPlayer;
+    private int mGameType;
 
     //valid plays (true = played, false = can play)
     private boolean[] mValidPlays;
@@ -73,6 +75,7 @@ public class GameManager implements IGameDefines {
         mPlayerOne = new GamePlayer();
         mPlayerTwo = new GamePlayer();
         mCurrentPlayer = Player.ONE;
+        mGameType = Game.Types.PLAYER_VS_PLAYER;
 
         mListeners = new CopyOnWriteArraySet<>();
         mValidPlays = new boolean[] {false,false,false,false,false,false,false,false,false};
@@ -85,6 +88,7 @@ public class GameManager implements IGameDefines {
     public void resetGame() {
         mPlayerOne.reset();
         mPlayerTwo.reset();
+        mPlayerTwo.setType(Player.Types.PLAYER_TYPE_COMPUTER);
         mCurrentPlayer = Player.ONE;
 
         for(int idx = 0; idx < mValidPlays.length; idx++) {
@@ -138,6 +142,46 @@ public class GameManager implements IGameDefines {
     }
 
     /**
+     * Notifies listeners that the computer made a move choice.
+     * This move has not been processed by the GameManager as we leave it
+     * up to the UI level to always supply the move.  Thus, this listener
+     * method is the way to know what choice was made.
+     * @param move Move chosen by the computer.
+     */
+    private void notifyGameListenersOfComputerMove(String move) {
+        for(IGameListener gl : mListeners) {
+            gl.onComputerMove(move);
+        }
+    }
+
+    /**
+     * Sets the current game type.
+     * @param type Type of game as defined in Game.Types
+     */
+    public void setGameType(int type) {
+        switch (type) {
+            case Game.Types.PLAYER_VS_COMPUTER_EASY:
+            case Game.Types.PLAYER_VS_COMPUTER_HARD:
+                mPlayerTwo.setType(Player.Types.PLAYER_TYPE_COMPUTER);
+                mGameType = type;
+                break;
+            case Game.Types.PLAYER_VS_PLAYER:
+            default:
+                mPlayerTwo.setType(Player.Types.PLAYER_TYPE_HUMAN);
+                mGameType = Game.Types.PLAYER_VS_PLAYER;
+                break;
+        }
+    }
+
+    /**
+     * Gets the current game type as defined in Game.Types.
+     * @return
+     */
+    public int getGameType() {
+        return mGameType;
+    }
+
+    /**
      * Get the current active player value as defined by Player (ONE, TWO)
      * @return
      */
@@ -148,7 +192,7 @@ public class GameManager implements IGameDefines {
     /**
      * Toggles the currently active player.
      */
-    private void toggleCurentPlayer() {
+    private void toggleCurrentPlayer() {
         if(mCurrentPlayer == Player.ONE) {
             mCurrentPlayer = Player.TWO;
         } else {
@@ -213,8 +257,9 @@ public class GameManager implements IGameDefines {
                 } else if(isGameDraw()) {
                     notifyGameListenersOfDraw();
                 } else {
-                    toggleCurentPlayer();
+                    toggleCurrentPlayer();
                     notifyGameListenersOfSwitch();
+                    checkForComputerPlay();
                 }
 
                 bValid = true;
@@ -222,6 +267,32 @@ public class GameManager implements IGameDefines {
         }
 
         return bValid;
+    }
+
+    /**
+     * Check if next player is the computer and process move.
+     */
+    private void checkForComputerPlay() {
+        GamePlayer currentPlayer = mPlayerOne;
+        GamePlayer opponent = mPlayerTwo;
+        if (mCurrentPlayer == Player.TWO) {
+            currentPlayer = mPlayerTwo;
+            opponent = mPlayerOne;
+        }
+
+        if (currentPlayer.getType() == Player.Types.PLAYER_TYPE_COMPUTER) {
+            ComputerPlayerUtil cpu = ComputerPlayerUtil.getInstance();
+            int iLevel = Player.Computer.LEVEL_EASY;
+            if(mGameType == Game.Types.PLAYER_VS_COMPUTER_HARD) {
+                iLevel = Player.Computer.LEVEL_HARD;
+            }
+
+            String sNextMove = cpu.getNextMove(iLevel,
+                    mValidPlays,
+                    currentPlayer.getCounts(),
+                    opponent.getCounts());
+            notifyGameListenersOfComputerMove(sNextMove);
+        }
     }
 
     /**

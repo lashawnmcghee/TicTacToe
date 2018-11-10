@@ -102,7 +102,7 @@ public class GamePlayer implements IGameDefines {
                 mCounts[idx]++;
 
                 //WE WON!!!
-                if(mCounts[idx] >= 3) {
+                if(mCounts[idx] >= Game.WINNING_COUNT) {
                     mIsWinner = true;
                     mWinningCombo = idx;
                     break;

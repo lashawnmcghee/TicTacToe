@@ -5,6 +5,7 @@ package com.lashawnmcghee.tictactoe.interfaces;
 
 public interface IGameListener {
     void onPlayerSwitch();
+    void onComputerMove(String move);
     void onGameDraw();
     void onGameWinner();
 }

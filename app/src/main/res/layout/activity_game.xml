@@ -5,9 +5,9 @@
     android:layout_height="match_parent"
     android:background="@color/colorPrimaryDark"
     android:id="@+id/fullscreen_content"
-    android:orientation="horizontal"
+    android:orientation="vertical"
     android:weightSum="2"
-    tools:context=".MainActivity">
+    tools:context=".GameActivity">
 
     <GridLayout
         android:id="@+id/gl_score"
@@ -110,12 +110,12 @@
             android:background="@drawable/rounded_primary" />
 
         <ImageView
-            android:id="@+id/iv_five"
+        android:id="@+id/iv_five"
             android:layout_columnWeight="1"
             android:layout_rowWeight="1"
             android:layout_margin="5dp"
             android:src="@drawable/baseline_holder_24"
-            android:background="@drawable/rounded_primary" />
+        android:background="@drawable/rounded_primary" />
 
         <ImageView
             android:id="@+id/iv_six"
@@ -130,6 +130,7 @@
             android:layout_columnWeight="1"
             android:layout_rowWeight="1"
             android:layout_margin="5dp"
+            android:src="@drawable/baseline_holder_24"
             android:background="@drawable/rounded_primary" />
 
         <ImageView
